@@ -1,0 +1,12 @@
+
+.body{
+    width: 60vw;
+    margin: 0 auto;
+}
+
+.error {
+    border: 2px solid #f00; 
+}
+.success {
+    border: 2px solid rgb(30, 255, 0); 
+}
