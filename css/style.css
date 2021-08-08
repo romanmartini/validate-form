@@ -4,6 +4,10 @@
     margin: 0 auto;
 }
 
+.load{
+    border: 2px solid rgb(238, 255, 0); 
+
+}
 .error {
     border: 2px solid #f00; 
 }
