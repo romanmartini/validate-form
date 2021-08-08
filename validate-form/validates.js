@@ -1,153 +1,87 @@
-import {formSchema} from './config.js';
+class Validates {
 
-const verifyElmRequiredValidation = (elm, typeValidation) => {
-
-    let keys = Object.keys(formSchema)
-    let schemaIncludeValidation;
-
-    keys.forEach( key => {
-        if( key !== elm.name ) return;
-        schemaIncludeValidation = formSchema[key][typeValidation]
-    })
-
-    return schemaIncludeValidation;
-}
-
-export const required = (elm) => {
-
-    let typeValidation = 'required'
-    let required = verifyElmRequiredValidation(elm, typeValidation)
-
-    if( !required ) {
-        return {
-            code: 'OK',
-            success: true,
-            message: null,
-            data: null
-        }
+    validateElementDOM(field, name){
+        if( !field ) throw new Error(`${name} does not exist in the dom form`)
     }
-    
-    if( elm.value === '' ) {
-        return {
-            code: 'VALIDATE-ERR',
-            success: false,
-            message: `${elm.name} is requred`,
-            data: {
-                elm,
-                typeValidation
+
+    validate(schema, cb){
+
+        let fields = schema.$formFields;
+        let errors = []
+
+        fields.forEach(field => {
+
+            let valueFieldName = field.name;
+            let schemaOption = schema[valueFieldName];
+            let err = cb(schemaOption, field);
+            if( !err ) return
+            errors.push(err)
+        })
+        return errors;
+    };
+
+    required(schemaOption, field){
+
+        if( !schemaOption.required ) return
+        if (field.value === '') {
+            return{
+                code: 'REQUIRED-VALIDATE',
+                success: false,
+                elm: field,
+                attribute: field.name,
+                message: schemaOption.required[1] || `${field.name} is requred`
             }
         }
     }
-    
-    return {
-        code: 'OK',
-        success: true,
-        message: null,
-        data: null
-    } 
-}
 
-export const min = (elm) => {
+    min(schemaOption, field){
 
-    let typeValidation = 'min'
-    let required = verifyElmRequiredValidation(elm, typeValidation)
-    let n = required;
+        if( !schemaOption.min ) return
+        let n = schemaOption.min[0] || schemaOption.min;
 
-    if( !required ) {
-        return {
-            code: 'OK',
-            success: true,
-            message: null,
-            data: null
-        }
-    }
-
-    if( elm.value.length < n ) {
-        return {
-            code: 'VALIDATE-ERR',
-            success: false,
-            message: `${elm.name} must contain more than ${n} characters`,
-            data: {
-                elm,
-                typeValidation: 'min'
+        if (field.value.length < n ) {
+            return{
+                code: 'MIN-VALIDATE',
+                success: false,
+                elm: field,
+                attribute: field.name,
+                message: schemaOption.min[1] || `${field.name} debe contener al menos ${n} caracteres`
             }
         }
     }
-    return {
-        code: 'OK',
-        success: true,
-        message: null,
-        data: null
-    } 
-}
 
-export const max = (elm) => {
+    max(schemaOption, field){
 
-    let typeValidation = 'max'
-    let required = verifyElmRequiredValidation(elm, typeValidation)
-    let n = required;
+        if( !schemaOption.max ) return
+        let n = schemaOption.max[0] || schemaOption.max;
 
-    if( !required ) {
-        return {
-            code: 'OK',
-            success: true,
-            message: null,
-            data: null
-        }
-    }
-
-    if( elm.value.length > n ) {
-        return {
-            code: 'VALIDATE-ERR',
-            success: false,
-            message: `${elm.name} cannot contain more than ${n} characters`,
-            data: {
-                elm,
-                validation: 'max'
+        if (field.value.length > n ) {
+            return{
+                code: 'MAX-VALIDATE',
+                success: false,
+                elm: field,
+                attribute: field.name,
+                message: schemaOption.max[1] || `${field.name} no puede contener más de ${n} caracteres `
             }
         }
     }
-    return {
-        code: 'OK',
-        success: true,
-        message: null,
-        data: null
-    } 
-}
 
-export const pattern = (elm) => {
+    pattern(schemaOption, field){
 
-    let typeValidation = 'pattern'
-    let required = verifyElmRequiredValidation(elm, typeValidation)
-    if( !required ) {
-        return {
-            code: 'OK',
-            success: true,
-            message: null,
-            data: null
-        }
-    }
-
-    let pattern = required[0];
-    let customMessage = required[1] || 'Pattern error ocurred';
-    
-    if( !pattern.test(elm.value) ) {
-        return {
-            code: 'VALIDATE-ERR',
-            success: false,
-            message: customMessage,
-            data: {
-                pattern,
-                elm,
-                typeValidation
+        if( !schemaOption.pattern ) return
+        let pattern = schemaOption.pattern[0] || schemaOption.pattern;
+        
+        if ( !pattern.test(field.value) ){
+            return{
+                code: 'PATTERN-VALIDATE',
+                success: false,
+                elm: field,
+                attribute: field.name,
+                message: schemaOption.pattern[1] || `${field.name} campo incorrecto `
             }
+            
         }
     }
-    return {
-        code: 'OK',
-        success: true,
-        message: null,
-        data: null
-    } 
 }
 
+export default Validates;
